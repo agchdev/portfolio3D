@@ -33,7 +33,7 @@ const ThreeScene = () => {
         );
         camera.position.set(.2, .5, 0); // Posición de la cámara
         // rotar la cámara -90 grados
-        camera.rotation.y = Math.PI / 2;
+        // camera.rotation.y = Math.PI / 2;
 
         // Crear el renderizador
         const renderer = new THREE.WebGLRenderer({ antialias: true }); // Crear el renderizador
@@ -76,7 +76,7 @@ const ThreeScene = () => {
         controls.maxAzimuthAngle = Math.PI;
 
         // Limitar la rotación horizontal (azimut) -30 a 30 grados
-        controls.minPolarAngle = Math.PI / 3; // 30 grados
+        controls.minPolarAngle = Math.PI / 2.5; // 30 grados
         controls.maxPolarAngle = Math.PI / 2; // 90 grados
 
         // Cargar el modelo 3D
@@ -120,9 +120,19 @@ const ThreeScene = () => {
 
         loader.load('/models/mouse.glb', (gltf) => {
             mouseModel = gltf.scene; // Obtener la escena del modelo
-            mouseModel.position.set(0, -.2, 0); // Ajusta la posición
+            mouseModel.position.set( 1, -.2, 0); // Ajusta la posición
             scene.add(mouseModel); // Agregar el modelo a la escena
         });
+
+        // Variables para capturar el movimiento del ratón
+        let mouseX = 0, mouseZ = 0;
+
+        const handleMouseMove = (event) => {
+        mouseZ = -(event.clientX / window.innerWidth) * 2 + 1; // Invertir el signo
+        mouseX = (event.clientY / window.innerHeight) * 2 - 2; // Invertir el signo
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
 
         loader.load('/models/screen.glb', (gltf) => {
             screenModel = gltf.scene; // Obtener la escena del modelo
@@ -152,7 +162,16 @@ const ThreeScene = () => {
         // Animación del renderizado
         const animate = () => {
             requestAnimationFrame(animate); // Llamada recursiva -> Repetir la animación
-            if (!isUserInteracting) applyInertia();
+
+            // Actualizar la velocidad de rotación
+            if (!isUserInteracting) applyInertia(); // Simular inercia
+
+            // Mover el ratón 3D según la posición del cursor
+            if (mouseModel) {
+                // Mover el ratón 3D
+                mouseModel.position.x = mouseX * .1; // Ajusta la sensibilidad en X
+                mouseModel.position.z = mouseZ * .1; // Ajusta la sensibilidad en Y
+            }
             controls.update();
             renderer.render(scene, camera); // Renderizar la escena
         };
