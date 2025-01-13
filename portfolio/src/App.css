@@ -1,0 +1,24 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+div {
+  width: 100vw;
+  height: 100vh;
+  position: relative; /* Permite que los hijos se posicionen en relación a este contenedor */
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1%, transparent 1%) 0 0 / 8px 8px,
+              radial-gradient(circle, rgba(255, 255, 255, 0.1) 1%, transparent 1%) 4px 4px / 8px 8px,
+              #121212; /* Fondo oscuro con ruido */
+}
+
+canvas {
+  position: absolute; /* Posiciona el canvas encima del fondo */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
