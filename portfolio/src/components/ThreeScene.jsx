@@ -10,7 +10,7 @@ const ThreeScene = () => {
     const mountRef = useRef(null); // Referencia al canvas del componente
     let isUserInteracting = false; // Bandera para detectar interacción del usuario
     let rotationVelocity = 0; // Velocidad de rotación
-
+    
     useEffect(() => {
 
         // ORDEN DE EJECUCIÓN
@@ -20,6 +20,7 @@ const ThreeScene = () => {
         //     1.3. Configurar la iluminación
         // 2. Cargar el modelo 3D
         // 3. Renderizar la escena
+        // Aplicar el fondo generado
 
         // Crear la escena
         const scene = new THREE.Scene();
@@ -37,6 +38,7 @@ const ThreeScene = () => {
 
         // Crear el renderizador
         const renderer = new THREE.WebGLRenderer({ antialias: true }); // Crear el renderizador
+        renderer.setClearColor(0x000000, 0); // Color de fondo transparente
         //  canvasRef.current -> Referencia al canvas del componente
         renderer.setSize(window.innerWidth, window.innerHeight); // Tamaño del canvas
         mountRef.current.appendChild(renderer.domElement); // Agregar el canvas al DOM
@@ -120,7 +122,7 @@ const ThreeScene = () => {
 
         loader.load('/models/mouse.glb', (gltf) => {
             mouseModel = gltf.scene; // Obtener la escena del modelo
-            mouseModel.position.set( 1, -.2, 0); // Ajusta la posición
+            mouseModel.position.set(1, -.2, 0); // Ajusta la posición
             scene.add(mouseModel); // Agregar el modelo a la escena
         });
 
@@ -128,8 +130,8 @@ const ThreeScene = () => {
         let mouseX = 0, mouseZ = 0;
 
         const handleMouseMove = (event) => {
-        mouseZ = -(event.clientX / window.innerWidth) * 2 + 1; // Invertir el signo
-        mouseX = (event.clientY / window.innerHeight) * 2 - 2; // Invertir el signo
+            mouseZ = -(event.clientX / window.innerWidth) * 2 + 1; // Invertir el signo
+            mouseX = (event.clientY / window.innerHeight) * 2 - 2; // Invertir el signo
         };
 
         window.addEventListener('mousemove', handleMouseMove);
@@ -195,10 +197,11 @@ const ThreeScene = () => {
 
     return (
         <>
-        <div ref={mountRef} style={{ width: '100%', height: '100%' }}>
-        </div>
-       </>
-    ); 
+            <div ref={mountRef} style={{ width: '100%', height: '100%' }}>
+            </div>
+            <div className='noise'></div>
+        </>
+    );
 };
 
 export default ThreeScene;
