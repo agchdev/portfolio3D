@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -10,7 +10,7 @@ const ThreeScene = () => {
     const mountRef = useRef(null); // Referencia al canvas del componente
     let isUserInteracting = false; // Bandera para detectar interacción del usuario
     let rotationVelocity = 0; // Velocidad de rotación
-    
+
     useEffect(() => {
 
         // ORDEN DE EJECUCIÓN
