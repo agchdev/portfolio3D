@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -70,6 +70,7 @@ const ThreeScene = () => {
         controls.enablePan = false; // Deshabilitar el paneo con el botón derecho
         controls.autoRotate = true; // Activar auto-rotación por defecto
         controls.autoRotateSpeed = 0.5; // Velocidad baja para un efecto suave
+
         controls.minDistance = .5; // Distancia mínima
         controls.maxDistance = .7; // Distancia máxima
 
@@ -83,7 +84,71 @@ const ThreeScene = () => {
 
         // Cargar el modelo 3D
         const loader = new GLTFLoader(); // Cargar el modelo
-        let keyboardModel, mouseModel, screenModel;
+        let keyboardModel, mouseModel, screenModel, screenMesh;
+
+        ///////////////////////////////////////// COSAS AÑADIDAS POR MI /////////////////////////////////
+        const canvasWidth = 2048; // Puedes ajustar esta resolución
+        const canvasHeight = 2048;
+        // Crear el canvas dinamico de la pantalla
+        // Crear canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        const ctx = canvas.getContext('2d');
+
+        // Crear textura a partir del canvas
+        const texture = new THREE.CanvasTexture(canvas);
+
+        const buttons = [
+            { x: 50, y: 300, width: 200, height: 50, label: 'Botón 1' },
+            { x: 300, y: 300, width: 200, height: 50, label: 'Botón 2' },
+            { x: 550, y: 300, width: 200, height: 50, label: 'Botón 3' },
+        ];
+
+        // Función para dibujar la pantalla
+        const drawCanvasContent = () => {
+            // Fondo del canvas
+            ctx.fillStyle = 'white'; // Color de fondo
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar texto principal
+            ctx.fillStyle = 'red';
+            ctx.font = '120px Arial';
+            ctx.fillText('KIRA te amo!', 150, 250);
+
+            // Dibujar botones
+            buttons.forEach(button => {
+                ctx.fillStyle = 'blue'; // Color de fondo del botón
+                ctx.fillRect(button.x, button.y, button.width, button.height);
+
+                ctx.fillStyle = 'white'; // Color del texto
+                ctx.font = '20px Arial';
+                ctx.fillText(button.label, button.x + 50, button.y + 30); // Centrar texto
+            });
+
+            // Actualizar la textura del canvas
+            texture.needsUpdate = true;
+        };
+
+        drawCanvasContent();
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////// ZONA DE PRUEBAS ////////////////////////////////
+        // const planeGeometry = new THREE.PlaneGeometry(.5,.5); // Dimensiones del plano
+        // const planeMaterial = new THREE.MeshStandardMaterial({
+        //     color: 0x808080, // Color gris
+        //     side: THREE.DoubleSide, // Renderizar ambas caras del plano
+        // });
+        // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+        // scene.add(plane);
+
+        // plane.rotation.z = Math.PI / 2; // Rotar el plano para que sea horizontal
+        // plane.rotation.x = -Math.PI / 2; // Rotar el plano para que sea horizontal
+        // plane.rotation.y = Math.PI / 2; // Rotar el plano para que sea horizontal
+        // plane.position.set(0, 0, 0);
+        // plane.material = new THREE.MeshBasicMaterial({ map: texture });
+        /////////////////////////////////////////////////////////////////////////////////
 
         loader.load('/models/keyboard.glb', function (gltf) {
             keyboardModel = gltf.scene; // Obtener la escena del modelo
@@ -138,9 +203,46 @@ const ThreeScene = () => {
 
         loader.load('/models/screen.glb', (gltf) => {
             screenModel = gltf.scene; // Obtener la escena del modelo
+            screenMesh = screenModel.getObjectByName('Screen'); // Ajusta el nombre según tu modelo
+            if (screenMesh) {
+                screenMesh.material = new THREE.MeshBasicMaterial({ map: texture });
+            }
             screenModel.position.set(0, -.2, 0); // Ajusta la posición
             scene.add(screenModel); // Agregar el modelo a la escena
         });
+
+        ///////////////////////////////////////// COSAS AÑADIDAS POR MI /////////////////////////////////
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        canvas.addEventListener('click', (event) => {
+            // Convertir las coordenadas del clic a coordenadas normalizadas
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // Actualizar el raycaster
+            raycaster.setFromCamera(mouse, camera);
+
+            // Detectar intersecciones con el modelo de la pantalla
+            const intersects = raycaster.intersectObjects(screenMesh); // Cambia esto si tienes más objetos
+            if (intersects.length > 0) {
+                console.log('¡Hiciste clic en la pantalla!');
+            }
+        });
+        //////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // Actualizar contenido dinámico en el canvas
+        // setInterval(() => {
+        //     ctx.fillStyle = 'black';
+        //     ctx.fillRect(0, 0, canvas.width, canvas.height);
+        //     ctx.fillStyle = 'lime';
+        //     ctx.fillText(
+        //         'Actualizado!',  // Contenido dinámico
+        //         50, // Posición horizontal
+        //         150 // Posición vertical
+        //     );
+        //     texture.needsUpdate = true; // Actualizar la textura
+        // }, 3000); // Cambia el contenido cada 3 segundos
 
         // Manejar interacción del usuario
         renderer.domElement.addEventListener('pointerdown', () => {
